@@ -11,7 +11,7 @@ public class RawgApi {
     Scanner sc = new Scanner(System.in);
 
 
-    public StringBuilder buscarJuegos(String nombreJuego){
+    public String buscarJuegos(String nombreJuego){
         // Solicitar peticion
         StringBuilder informationString = new StringBuilder();
         try {
@@ -35,11 +35,10 @@ public class RawgApi {
 
                 sc.close();
                 // Mostrar la info por consola
-                return informationString;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return informationString;
+        return informationString.toString();
     }
 }
