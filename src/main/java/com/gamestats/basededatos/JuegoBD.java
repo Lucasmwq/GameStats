@@ -2,10 +2,10 @@ package com.gamestats.basededatos;
 
 import com.gamestats.modelo.Juego;
 
-import java.sql.PreparedStatement;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.sql.ResultSet;
 
 public class JuegoBD {
 
@@ -40,6 +40,44 @@ public class JuegoBD {
             ps.setDouble(4, juego.getRating());
             ps.executeUpdate();
             System.out.println("Juego guardado: " + juego.getName());
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List <Juego> obtenerTodos() {
+        String sql = "SELECT * FROM juegos";
+        List <Juego> juegos = new ArrayList<>();
+
+        try (Connection conn = ConexionBD.conectar();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)){
+
+            while (rs.next()) {
+                Juego j = new Juego();
+                j.setId(rs.getInt("id"));
+                j.setName(rs.getString("nombre"));
+                j.setBackground_image(rs.getString("portada"));
+                j.setRating(rs.getDouble("calificacion"));
+                juegos.add(j);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return juegos;
+    }
+
+    public void eliminarJuego(int id) {
+        String sql = "DELETE FROM juegos WHERE id = ?";
+
+        try (Connection conn = ConexionBD.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ps.executeUpdate();
+            System.out.println("Juego eliminado");
 
         } catch (SQLException e) {
             e.printStackTrace();

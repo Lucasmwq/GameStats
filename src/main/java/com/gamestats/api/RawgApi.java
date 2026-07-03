@@ -8,9 +8,6 @@ public class RawgApi {
     static String API_KEY = "4c4dcf7d58c74724b270ea6b2b7a26ad";
     static String URLBase = "https://api.rawg.io/api/games";
 
-    Scanner sc = new Scanner(System.in);
-
-
     public String buscarJuegos(String nombreJuego){
         // Solicitar peticion
         StringBuilder informationString = new StringBuilder();
@@ -34,7 +31,6 @@ public class RawgApi {
                 }
 
                 sc.close();
-                // Mostrar la info por consola
             }
         } catch (Exception e) {
             e.printStackTrace();
