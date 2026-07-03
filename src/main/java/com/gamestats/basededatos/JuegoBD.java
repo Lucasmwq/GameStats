@@ -1,11 +1,14 @@
 package com.gamestats.basededatos;
 
+import com.gamestats.excepciones.ErrorBaseDatosException;
+import com.gamestats.modelo.EstadoJuego;
 import com.gamestats.modelo.Juego;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.ResultSet;
+import java.util.Locale;
 
 public class JuegoBD {
 
@@ -14,7 +17,8 @@ public class JuegoBD {
                 "id INTEGER PRIMARY KEY, " +
                 "nombre TEXT, " +
                 "portada TEXT, " +
-                "calificacion REAL" +
+                "calificacion REAL," +
+                "estado TEXT" +
                 ")";
 
         try (Connection conn = ConexionBD.conectar();
@@ -28,8 +32,8 @@ public class JuegoBD {
         }
     }
 
-    public void guardar(Juego juego) {
-        String sql = "INSERT OR IGNORE INTO juegos (id, nombre, portada, calificacion) VALUES (?,?,?,?)";
+    public void guardar(Juego juego, EstadoJuego estado) {
+        String sql = "INSERT OR IGNORE INTO juegos (id, nombre, portada, calificacion, estado) VALUES (?,?,?,?,?)";
 
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -38,11 +42,12 @@ public class JuegoBD {
             ps.setString(2, juego.getName());
             ps.setString(3, juego.getBackground_image());
             ps.setDouble(4, juego.getRating());
+            ps.setString(5, estado.name());
             ps.executeUpdate();
             System.out.println("Juego guardado: " + juego.getName());
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new ErrorBaseDatosException("Error al intentar guardar el juego en la base de datos", e);
         }
     }
 
@@ -60,11 +65,12 @@ public class JuegoBD {
                 j.setName(rs.getString("nombre"));
                 j.setBackground_image(rs.getString("portada"));
                 j.setRating(rs.getDouble("calificacion"));
+                j.setEstado(EstadoJuego.valueOf(rs.getString("estado").toUpperCase()));
                 juegos.add(j);
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new ErrorBaseDatosException("Error al intentar guardar el juego en la base de datos", e);
         }
         return juegos;
     }
@@ -80,7 +86,23 @@ public class JuegoBD {
             System.out.println("Juego eliminado");
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new ErrorBaseDatosException("Error al intentar guardar el juego en la base de datos", e);
+        }
+    }
+
+    public void actualizarEstadoJuego(EstadoJuego estado, int id) {
+        String sql = "UPDATE juegos SET estado = ? WHERE id = ?";
+
+        try (Connection conn = ConexionBD.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, estado.name());
+            ps.setInt(2,id);
+            ps.executeUpdate();
+            System.out.println("Estado actualizado");
+
+        } catch (SQLException e) {
+            throw new ErrorBaseDatosException("Error al intentar guardar el juego en la base de datos", e);
         }
     }
 }

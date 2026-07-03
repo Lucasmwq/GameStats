@@ -4,8 +4,9 @@ import com.gamestats.modelo.Juego;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class ParsearJSON {
 
@@ -14,11 +15,8 @@ public class ParsearJSON {
         JsonObject objeto = gson.fromJson(json, JsonObject.class);
         JsonArray resultados = objeto.getAsJsonArray("results");
 
-        List<Juego> juegos = new ArrayList<>();
-        for (int i = 0; i < resultados.size(); i++) {
-            Juego juego = gson.fromJson(resultados.get(i), Juego.class);
-            juegos.add(juego);
-        }
-        return juegos;
+        return IntStream.range(0, resultados.size())
+                .mapToObj(i -> gson.fromJson(resultados.get(i), Juego.class))
+                .collect(Collectors.toList());
     }
 }
