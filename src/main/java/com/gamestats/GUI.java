@@ -42,9 +42,6 @@ public class GUI extends Application {
         JuegoBD juegoBD = new JuegoBD();
         juegoBD.crearTabla();
 
-        String estiloBotonPrimario = "-fx-font-size: 13px; -fx-padding: 10 30; -fx-cursor: hand; -fx-background-radius: 6;";
-        String estiloBotonSecundario = "-fx-font-size: 12px; -fx-padding: 8 20; -fx-cursor: hand; -fx-background-radius: 6;";
-
         //Pantalla de bienvenida
         VBox rootBienvenida = new VBox(30);
         rootBienvenida.setAlignment(Pos.CENTER);
@@ -57,10 +54,10 @@ public class GUI extends Application {
         lblSubtitulo.setFont(new Font("Arial", 14));
 
         Button btnIngresar = new Button("Ingresar");
-        btnIngresar.setStyle(estiloBotonPrimario);
 
         rootBienvenida.getChildren().addAll(lblBienvenida, lblSubtitulo, btnIngresar);
         Scene escenaBienvenida = new Scene(rootBienvenida, 650, 400);
+        escenaBienvenida.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
 
         // Pantalla de menú
         VBox rootMenu = new VBox(15);
@@ -71,15 +68,14 @@ public class GUI extends Application {
         lblSeleccion.setFont(Font.font("Arial", FontWeight.BOLD, 22));
 
         Button btnBuscarJuego = new Button("🔍  Buscar juego");
-        btnBuscarJuego.setStyle(estiloBotonPrimario);
         btnBuscarJuego.setMinWidth(200);
 
         Button btnMiColeccion = new Button("🎮  Mi colección");
-        btnMiColeccion.setStyle(estiloBotonPrimario);
         btnMiColeccion.setMinWidth(200);
 
         rootMenu.getChildren().addAll(lblSeleccion, btnBuscarJuego, btnMiColeccion);
         Scene escenaMenu = new Scene(rootMenu, 650, 400);
+        escenaMenu.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
 
         // Pantalla de búsqueda
         VBox rootBusqueda = new VBox(12);
@@ -97,7 +93,6 @@ public class GUI extends Application {
         txtBuscar.setPrefWidth(280);
 
         Button btnBuscar = new Button("Buscar");
-        btnBuscar.setStyle(estiloBotonPrimario);
 
         filaBusqueda.getChildren().addAll(txtBuscar, btnBuscar);
 
@@ -109,10 +104,8 @@ public class GUI extends Application {
         filaBotonesGuardar.setAlignment(Pos.CENTER);
 
         Button btnGuardar = new Button("Guardar juego");
-        btnGuardar.setStyle(estiloBotonPrimario);
 
         Button btnVolverBusqueda = new Button("Volver");
-        btnVolverBusqueda.setStyle(estiloBotonSecundario);
 
         filaBotonesGuardar.getChildren().addAll(btnGuardar, btnVolverBusqueda);
 
@@ -120,6 +113,7 @@ public class GUI extends Application {
 
         rootBusqueda.getChildren().addAll(lblBuscar, filaBusqueda, listaJuegos, filaBotonesGuardar, lblMensajeBusqueda);
         Scene escenaBusqueda = new Scene(rootBusqueda, 650, 520);
+        escenaBusqueda.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
 
         // Pantalla Mi colección
         VBox rootColeccion = new VBox(12);
@@ -178,10 +172,8 @@ public class GUI extends Application {
         tiposDeEstados.setPrefWidth(130);
 
         Button btnGuardarEstado = new Button("Cambiar estado");
-        btnGuardarEstado.setStyle(estiloBotonSecundario);
 
         Button btnAgregarTiempo = new Button("Agregar tiempo jugado");
-        btnAgregarTiempo.setStyle(estiloBotonSecundario);
 
         // [INTERFAZ V1_4] BOTON DE FILTRO GLOBAL UTILIZANDO TOGGLE BUTTON
         btnFiltroFavoritos.setOnAction(e -> {
@@ -205,10 +197,8 @@ public class GUI extends Application {
         filaBotonesColeccion.setAlignment(Pos.CENTER);
 
         Button btnEliminarJuego = new Button("Eliminar juego");
-        btnEliminarJuego.setStyle(estiloBotonSecundario);
 
         Button btnVolverColeccion = new Button("Volver");
-        btnVolverColeccion.setStyle(estiloBotonSecundario);
 
         filaBotonesColeccion.getChildren().addAll(btnEliminarJuego, btnVolverColeccion);
 
@@ -216,6 +206,7 @@ public class GUI extends Application {
 
         rootColeccion.getChildren().addAll(lblColeccion, listaColeccion, filaEstado, filaBotonesColeccion, lblMensajeColeccion);
         Scene escenaColeccion = new Scene(rootColeccion, 650, 520);
+        escenaColeccion.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
 
         // Lógica de búsqueda
         RawgApi rawgApi = new RawgApi();
@@ -327,7 +318,6 @@ public class GUI extends Application {
                 filaInputs.getChildren().addAll(txtHoras, lblHoras, txtMin, lblMin);
 
                 Button btnConfirmarTiempo = new Button("Sumar Tiempo");
-                btnConfirmarTiempo.setStyle(estiloBotonSecundario);
 
                 Label lblErrorTiempo = new Label();
                 lblErrorTiempo.setStyle("-fx-text-fill: red;");
@@ -349,7 +339,10 @@ public class GUI extends Application {
                 });
 
                 layoutTiempo.getChildren().addAll(new Label("Registrar tiempo adicional:"), filaInputs, btnConfirmarTiempo, lblErrorTiempo);
-                ventanaTiempo.setScene(new Scene(layoutTiempo, 350, 200));
+
+                Scene escenaTiempo = new Scene(layoutTiempo, 350, 200);
+                escenaTiempo.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
+                ventanaTiempo.setScene(escenaTiempo);
                 ventanaTiempo.show();
             } else {
                 lblMensajeColeccion.setText("Selección requerida.");
