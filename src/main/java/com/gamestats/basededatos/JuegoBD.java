@@ -19,7 +19,8 @@ public class JuegoBD {
                 "portada TEXT, " +
                 "calificacion REAL," +
                 "estado TEXT," +
-                "tiempo_jugado INTEGER DEFAULT 0" +
+                "tiempo_jugado INTEGER DEFAULT 0," +
+                "favorito INTEGER DEFAULT 0" +
                 ")";
 
         try (Connection conn = ConexionBD.conectar();
@@ -31,7 +32,7 @@ public class JuegoBD {
     }
 
     public void guardar(Juego juego, EstadoJuego estado) {
-        String sql = "INSERT OR IGNORE INTO juegos (id, nombre, portada, calificacion, estado, tiempo_jugado) VALUES (?,?,?,?,?,?)";
+        String sql = "INSERT OR IGNORE INTO juegos (id, nombre, portada, calificacion, estado, tiempo_jugado, favorito) VALUES (?,?,?,?,?,?,?)";
 
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -42,6 +43,7 @@ public class JuegoBD {
             ps.setDouble(4, juego.getRating());
             ps.setString(5, estado.name());
             ps.setInt(6, 0);
+            ps.setBoolean(7, false);
             ps.executeUpdate();
             System.out.println("Juego guardado: " + juego.getName());
 
@@ -66,6 +68,7 @@ public class JuegoBD {
                 j.setRating(rs.getDouble("calificacion"));
                 j.setEstado(EstadoJuego.valueOf(rs.getString("estado").toUpperCase()));
                 j.setTiempoJugadoMinutos(rs.getInt("tiempo_jugado"));
+                j.setFavorito(rs.getBoolean("favorito"));
                 juegos.add(j);
             }
 
@@ -106,7 +109,7 @@ public class JuegoBD {
         }
     }
 
-    //AGREGADO EN INTERFAZ V1_2 PARA IMPLEMENTAR SISTEMA DE HORAS JUGADAS
+    // [INTERFAZ V1_3] IMPLEMENTACIÓN DE SISTEMA DE HORAS JUGADAS
     public void sumarTiempoJugado(int id, int minutosNuevos) {
         String sql = "UPDATE juegos SET tiempo_jugado = tiempo_jugado + ? WHERE id = ?";
         try (Connection conn = ConexionBD.conectar();
@@ -118,6 +121,23 @@ public class JuegoBD {
             throw new ErrorBaseDatosException("Error al actualizar tiempo", e);
         }
     }
+
+    // [INTERFAZ V1_4] + METODO PARA ALTERNAR ESTADO DE FAVORITO
+    public void actualizarFavorito(int id, boolean esFavorito) {
+
+        String sql = "UPDATE juegos SET favorito = ? WHERE id = ?";
+
+        try (Connection conn = ConexionBD.conectar();
+        PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setBoolean(1, esFavorito);
+            ps.setInt(2, id);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw  new ErrorBaseDatosException("Error al actualizar favoritos", e);
+        }
+    }
+
 
 
 

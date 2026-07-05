@@ -20,17 +20,19 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import java.util.List;
+import java.util.Locale;
 
 public class GUI extends Application {
 
     private List<Juego> coleccion;
     private List<Juego> juegos;
 
-    private void recargarColeccion(ListView<String> listaColeccion, List<Juego> coleccion, JuegoBD juegoBD) {
-        coleccion = juegoBD.obtenerTodos();
+    private void recargarColeccion(ListView<Juego> listaColeccion, JuegoBD juegoBD, boolean soloFavoritos) {
+        this.coleccion = juegoBD.obtenerTodos();
         listaColeccion.getItems().clear();
-        coleccion.stream()
-                .map(j -> j.getName() + " — Calificación: " + j.getRating() + " — Estado: " + j.getEstado()+ " -- Tiempo Jugado: " + String.format(java.util.Locale.US, "%.1f", j.getTiempoJugadoDecimal()) + "h")
+        this.coleccion.stream()
+                .filter(j -> !soloFavoritos || j.isFavorito())
+               // .map(j -> j.getName() + " — Calificación: " + j.getRating() + " — Estado: " + j.getEstado()+ " -- Tiempo Jugado: " + String.format(java.util.Locale.US, "%.1f", j.getTiempoJugadoDecimal()) + "h")
                 .forEach(listaColeccion.getItems()::add);
     }
 
@@ -127,9 +129,47 @@ public class GUI extends Application {
         Label lblColeccion = new Label("Mi colección");
         lblColeccion.setFont(Font.font("Arial", FontWeight.BOLD, 22));
 
-        ListView<String> listaColeccion = new ListView<>();
+        // [INTERFAZ V1_4] - CELL FACTORY PARA RENDERIZAR LA ESTRELLA Y TEXTO
+
+        ToggleButton btnFiltroFavoritos = new ToggleButton("☆");
+        btnFiltroFavoritos.setStyle("-fx-font-size: 16px; -fx-cursor: hand;");
+
+        ListView<Juego> listaColeccion = new ListView<>();
         listaColeccion.setPrefWidth(550);
         listaColeccion.setPrefHeight(250);
+
+        listaColeccion.setCellFactory(param -> new ListCell<Juego>() {
+            @Override
+            protected void updateItem(Juego j, boolean empty) {
+                super.updateItem(j, empty);
+                if (empty || j == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    Label lblEstrella = new Label(j.isFavorito() ? "★ " : "☆ ");
+                    lblEstrella.setStyle(j.isFavorito() ? "-fx-text-fill: gold; -fx-font-size: 18px; -fx-cursor: hand;" : "-fx-text-fill: gray; -fx-font-size: 18; -fx-cursor: hand;");
+
+                    // Evento interactivo sobre la estrella individual
+                    lblEstrella.setOnMouseClicked(event -> {
+                        juegoBD.actualizarFavorito(j.getId(), !j.isFavorito());
+
+                        // Busca si el boón de filtro está activo leyendo la estructura
+                        recargarColeccion(listaColeccion, juegoBD, btnFiltroFavoritos.isSelected());
+                    });
+
+                    Label lblTexto = new Label(j.getName() + " -- Calificación: " + j.getRating() + " -- Estado: " + j.getEstado() + " -- Tiempo Jugado" + String.format(Locale.US, "%.1f", j.getTiempoJugadoDecimal()) + "h");
+                    lblTexto.setFont(new Font("Arial", 14));
+
+                    HBox fila = new HBox(lblEstrella, lblTexto);
+                    fila.setAlignment(Pos.CENTER_LEFT);
+                    setGraphic(fila);
+
+
+                }
+            }
+        });
+
+
 
         HBox filaEstado = new HBox(10);
         filaEstado.setAlignment(Pos.CENTER);
@@ -145,7 +185,23 @@ public class GUI extends Application {
         Button btnAgregarTiempo = new Button("Agregar tiempo jugado");
         btnAgregarTiempo.setStyle(estiloBotonSecundario);
 
-        filaEstado.getChildren().addAll(lblEstado, tiposDeEstados, btnGuardarEstado, btnAgregarTiempo);
+        // [INTERFAZ V1_4] BOTON DE FILTRO GLOBAL UTILIZANDO TOGGLE BUTTON
+        btnFiltroFavoritos.setOnAction(e -> {
+
+            if (btnFiltroFavoritos.isSelected()) {
+
+                btnFiltroFavoritos.setText("★");
+                btnFiltroFavoritos.setStyle("-fx-font-size: 16px; -fx-cursor: hand; -fx-text-fill: gold");
+                recargarColeccion(listaColeccion, juegoBD, true);
+            } else {
+
+                btnFiltroFavoritos.setText("☆");
+                btnFiltroFavoritos.setStyle("-fx-font-size: 16px; -fx-cursor: hand; -fx-text-fill: black");
+                recargarColeccion(listaColeccion, juegoBD, btnFiltroFavoritos.isSelected());
+            }
+        });
+
+        filaEstado.getChildren().addAll(lblEstado, tiposDeEstados, btnGuardarEstado, btnAgregarTiempo, btnFiltroFavoritos);
 
         HBox filaBotonesColeccion = new HBox(10);
         filaBotonesColeccion.setAlignment(Pos.CENTER);
@@ -215,18 +271,17 @@ public class GUI extends Application {
             if (coleccion.isEmpty()) {
                 lblMensajeColeccion.setText("No tienes juegos guardados aún");
             } else {
-                recargarColeccion(listaColeccion, coleccion, juegoBD);
+                recargarColeccion(listaColeccion, juegoBD, btnFiltroFavoritos.isSelected());
             }
             lblMensajeColeccion.setText("");
             primaryStage.setScene(escenaColeccion);
         });
 
         btnEliminarJuego.setOnAction(e -> {
-            int indice = listaColeccion.getSelectionModel().getSelectedIndex();
-            if (indice >= 0) {
-                Juego juegoEliminar = coleccion.get(indice);
+            Juego juegoEliminar = listaColeccion.getSelectionModel().getSelectedItem();
+            if (juegoEliminar != null) {
                 juegoBD.eliminarJuego(juegoEliminar.getId());
-                recargarColeccion(listaColeccion, coleccion, juegoBD);
+                recargarColeccion(listaColeccion, juegoBD, btnFiltroFavoritos.isSelected());
                 lblMensajeColeccion.setText("Juego eliminado correctamente");
             } else {
                 lblMensajeColeccion.setText("Selecciona un juego primero");
@@ -234,12 +289,11 @@ public class GUI extends Application {
         });
 
         btnGuardarEstado.setOnAction(event -> {
-            int indice = listaColeccion.getSelectionModel().getSelectedIndex();
-            if (indice >= 0) {
-                Juego juegoACambiarEstado = coleccion.get(indice);
+            Juego juegoACambiarEstado = listaColeccion.getSelectionModel().getSelectedItem();
+            if (juegoACambiarEstado!= null && tiposDeEstados.getValue() != null) {
                 EstadoJuego estado = EstadoJuego.valueOf(tiposDeEstados.getValue().toUpperCase());
                 juegoBD.actualizarEstadoJuego(estado, juegoACambiarEstado.getId());
-                recargarColeccion(listaColeccion, coleccion, juegoBD);
+                recargarColeccion(listaColeccion, juegoBD, btnFiltroFavoritos.isSelected());
                 lblMensajeColeccion.setText("Estado cambiado correctamente");
             } else {
                 lblMensajeColeccion.setText("Selecciona un juego primero");
@@ -247,13 +301,12 @@ public class GUI extends Application {
         });
 
 
-        // IMPLEMENTADO EN INTERFAZ V1.3 (AGREGAR BOTÓN PARA SUMAR HORAS JUGADAS)
+        // [INTERFAZ V1.4] (AGREGAR BOTÓN PARA SUMAR HORAS JUGADAS Y FAVORITOS)
         btnAgregarTiempo.setOnAction(event -> {
 
+            Juego juegoSeleccionado = listaColeccion.getSelectionModel().getSelectedItem();
             //OBTIENE EL INDICE NUMERICO SELEECIONADO EN LA LISTA
-            int indice= listaColeccion.getSelectionModel().getSelectedIndex();
-            if (indice>=0) {
-                Juego juegoSeleccionado = coleccion.get(indice);
+            if (juegoSeleccionado!=null) {
 
                 Stage ventanaTiempo = new Stage();
                 ventanaTiempo.setTitle("Tiempo: " + juegoSeleccionado.getName());
@@ -289,7 +342,7 @@ public class GUI extends Application {
                         int minutosTotales = (horas * 60) + minutos;
 
                         juegoBD.sumarTiempoJugado(juegoSeleccionado.getId(), minutosTotales);
-                        recargarColeccion(listaColeccion, coleccion, juegoBD);
+                        recargarColeccion(listaColeccion, juegoBD, btnFiltroFavoritos.isSelected());
                         lblMensajeColeccion.setText("Tiempo guardado en "+ juegoSeleccionado.getName());
                         ventanaTiempo.close();
                     } catch (NumberFormatException ex) {
