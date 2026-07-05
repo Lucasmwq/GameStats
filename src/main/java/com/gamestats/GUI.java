@@ -138,7 +138,7 @@ public class GUI extends Application {
         listaColeccion.setPrefWidth(550);
         listaColeccion.setPrefHeight(250);
 
-        listaColeccion.setCellFactory(param -> new ListCell<Juego>() {
+        listaColeccion.setCellFactory(param -> new ListCell<>() {
             @Override
             protected void updateItem(Juego j, boolean empty) {
                 super.updateItem(j, empty);
@@ -157,7 +157,7 @@ public class GUI extends Application {
                         recargarColeccion(listaColeccion, juegoBD, btnFiltroFavoritos.isSelected());
                     });
 
-                    Label lblTexto = new Label(j.getName() + " -- Calificación: " + j.getRating() + " -- Estado: " + j.getEstado() + " -- Tiempo Jugado" + String.format(Locale.US, "%.1f", j.getTiempoJugadoDecimal()) + "h");
+                    Label lblTexto = new Label(j.obtenerInformacionBasica() + "  ||  " + j.obtenerResumenProgreso());             lblTexto.setFont(new Font("Arial", 14));
                     lblTexto.setFont(new Font("Arial", 14));
 
                     HBox fila = new HBox(lblEstrella, lblTexto);
@@ -168,8 +168,6 @@ public class GUI extends Application {
                 }
             }
         });
-
-
 
         HBox filaEstado = new HBox(10);
         filaEstado.setAlignment(Pos.CENTER);
@@ -231,7 +229,7 @@ public class GUI extends Application {
                     juegos = parser.parsearJuegos(json);
                     listaJuegos.getItems().clear();
                     juegos.stream()
-                            .map(j -> j.getName() + " — Calificación: " + j.getRating())
+                            .map(j -> j.obtenerInformacionBasica())
                             .forEach(listaJuegos.getItems()::add);
                     lblMensajeBusqueda.setText("");
 
@@ -305,7 +303,7 @@ public class GUI extends Application {
         btnAgregarTiempo.setOnAction(event -> {
 
             Juego juegoSeleccionado = listaColeccion.getSelectionModel().getSelectedItem();
-            //OBTIENE EL INDICE NUMERICO SELEECIONADO EN LA LISTA
+            //OBTIENE EL ÍNDICE NÚMERICO SELEECIONADO EN LA LISTA
             if (juegoSeleccionado!=null) {
 
                 Stage ventanaTiempo = new Stage();
