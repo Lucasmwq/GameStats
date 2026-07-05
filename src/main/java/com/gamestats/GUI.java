@@ -1,5 +1,6 @@
 package com.gamestats;
 
+
 import com.gamestats.excepciones.JuegoNoEncontradoException;
 import com.gamestats.excepciones.RespuestaApiInvalidaException;
 import com.gamestats.excepciones.ErrorBaseDatosException;
@@ -21,6 +22,8 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import java.util.List;
 import java.util.Locale;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 public class GUI extends Application {
 
@@ -47,15 +50,28 @@ public class GUI extends Application {
         rootBienvenida.setAlignment(Pos.CENTER);
         rootBienvenida.setPadding(new Insets(40));
 
-        Label lblBienvenida = new Label("GameStats");
-        lblBienvenida.setFont(Font.font("Arial", FontWeight.BOLD, 36));
+        // GAMESTATS COMO TEXTO EN EL INICIO
+        //Label lblBienvenida = new Label("GameStats");
+        //lblBienvenida.setFont(Font.font("Arial", FontWeight.BOLD, 36));
+
+        // GAMESTATS COMO LOGO EN EL INICIO
+        ImageView vistaLogo = new ImageView();
+        try {
+            Image imagenLogo = new Image(getClass().getResourceAsStream("/logo.png"));
+            vistaLogo.setImage(imagenLogo);
+            vistaLogo.setFitWidth(350);
+            vistaLogo.setFitHeight(100);
+            vistaLogo.setPreserveRatio(true);
+        } catch (NullPointerException e) {
+            System.err.println("Advertencia: No se encontró el archivo logo.png en resources.");
+        }
 
         Label lblSubtitulo = new Label("Tu colección de videojuegos personal");
         lblSubtitulo.setFont(new Font("Arial", 14));
 
         Button btnIngresar = new Button("Ingresar");
 
-        rootBienvenida.getChildren().addAll(lblBienvenida, lblSubtitulo, btnIngresar);
+        rootBienvenida.getChildren().addAll(vistaLogo, lblSubtitulo, btnIngresar);
         Scene escenaBienvenida = new Scene(rootBienvenida, 650, 400);
         escenaBienvenida.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
 
