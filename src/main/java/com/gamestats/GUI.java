@@ -30,7 +30,7 @@ public class GUI extends Application {
         coleccion = juegoBD.obtenerTodos();
         listaColeccion.getItems().clear();
         coleccion.stream()
-                .map(j -> j.getName() + " — Calificación: " + j.getRating() + " — Estado: " + j.getEstado())
+                .map(j -> j.getName() + " — Calificación: " + j.getRating() + " — Estado: " + j.getEstado()+ " -- Tiempo Jugado: " + String.format(java.util.Locale.US, "%.1f", j.getTiempoJugadoDecimal()) + "h")
                 .forEach(listaColeccion.getItems()::add);
     }
 
@@ -142,7 +142,10 @@ public class GUI extends Application {
         Button btnGuardarEstado = new Button("Cambiar estado");
         btnGuardarEstado.setStyle(estiloBotonSecundario);
 
-        filaEstado.getChildren().addAll(lblEstado, tiposDeEstados, btnGuardarEstado);
+        Button btnAgregarTiempo = new Button("Agregar tiempo jugado");
+        btnAgregarTiempo.setStyle(estiloBotonSecundario);
+
+        filaEstado.getChildren().addAll(lblEstado, tiposDeEstados, btnGuardarEstado, btnAgregarTiempo);
 
         HBox filaBotonesColeccion = new HBox(10);
         filaBotonesColeccion.setAlignment(Pos.CENTER);
@@ -240,6 +243,65 @@ public class GUI extends Application {
                 lblMensajeColeccion.setText("Estado cambiado correctamente");
             } else {
                 lblMensajeColeccion.setText("Selecciona un juego primero");
+            }
+        });
+
+
+        // IMPLEMENTADO EN INTERFAZ V1.3 (AGREGAR BOTÓN PARA SUMAR HORAS JUGADAS)
+        btnAgregarTiempo.setOnAction(event -> {
+
+            //OBTIENE EL INDICE NUMERICO SELEECIONADO EN LA LISTA
+            int indice= listaColeccion.getSelectionModel().getSelectedIndex();
+            if (indice>=0) {
+                Juego juegoSeleccionado = coleccion.get(indice);
+
+                Stage ventanaTiempo = new Stage();
+                ventanaTiempo.setTitle("Tiempo: " + juegoSeleccionado.getName());
+
+                VBox layoutTiempo = new VBox(15);
+                layoutTiempo.setAlignment(Pos.CENTER);
+                layoutTiempo.setPadding(new Insets(20));
+
+                HBox filaInputs = new HBox(10);
+                filaInputs.setAlignment(Pos.CENTER);
+
+                TextField txtHoras = new TextField("0");
+                txtHoras.setPrefWidth(50);
+                Label lblHoras = new Label("Horas");
+
+                TextField txtMin = new TextField("0");
+                txtMin.setPrefWidth(50);
+                Label lblMin = new Label("Minutos");
+
+                filaInputs.getChildren().addAll(txtHoras, lblHoras, txtMin, lblMin);
+
+                Button btnConfirmarTiempo = new Button("Sumar Tiempo");
+                btnConfirmarTiempo.setStyle(estiloBotonSecundario);
+
+                Label lblErrorTiempo = new Label();
+                lblErrorTiempo.setStyle("-fx-text-fill: red;");
+
+                //EVENTO INTERNO DEL BOTÓN DE CONFIRMACIÓN DE LA VENTANA MODAL
+                btnConfirmarTiempo.setOnAction(e -> {
+                    try {
+                        int horas = Integer.parseInt(txtHoras.getText());
+                        int minutos = Integer.parseInt(txtMin.getText());
+                        int minutosTotales = (horas * 60) + minutos;
+
+                        juegoBD.sumarTiempoJugado(juegoSeleccionado.getId(), minutosTotales);
+                        recargarColeccion(listaColeccion, coleccion, juegoBD);
+                        lblMensajeColeccion.setText("Tiempo guardado en "+ juegoSeleccionado.getName());
+                        ventanaTiempo.close();
+                    } catch (NumberFormatException ex) {
+                        lblErrorTiempo.setText("Formato numérico inválido");
+                    }
+                });
+
+                layoutTiempo.getChildren().addAll(new Label("Registrar tiempo adicional:"), filaInputs, btnConfirmarTiempo, lblErrorTiempo);
+                ventanaTiempo.setScene(new Scene(layoutTiempo, 350, 200));
+                ventanaTiempo.show();
+            } else {
+                lblMensajeColeccion.setText("Selección requerida.");
             }
         });
 

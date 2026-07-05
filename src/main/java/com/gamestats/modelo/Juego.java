@@ -2,6 +2,7 @@ package com.gamestats.modelo;
 
 public class Juego extends ElementoCatalogo implements Gestionable {
 
+    private int tiempoJugadoMinutos;
     private String name;
     private String background_image;
     private double rating;
@@ -61,4 +62,9 @@ public class Juego extends ElementoCatalogo implements Gestionable {
     public void setRating(double rating) {
         this.rating = rating;
     }
+
+    //Agregado para implementar en la interfaz la parte de tiempo jugado
+    public int getTiempoJugadoMinutos() { return tiempoJugadoMinutos;}
+    public void setTiempoJugadoMinutos(int tiempoJugadoMinutos) {this.tiempoJugadoMinutos= tiempoJugadoMinutos;}
+    public double getTiempoJugadoDecimal() { return this.tiempoJugadoMinutos/60.0;}
 }
