@@ -4,7 +4,6 @@ import com.gamestats.excepciones.RespuestaApiInvalidaException;
 import com.gamestats.modelo.Juego;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.List;
 import java.util.stream.Collectors;

@@ -21,7 +21,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import java.util.List;
-import java.util.Locale;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -35,7 +34,6 @@ public class GUI extends Application {
         listaColeccion.getItems().clear();
         this.coleccion.stream()
                 .filter(j -> !soloFavoritos || j.isFavorito())
-               // .map(j -> j.getName() + " — Calificación: " + j.getRating() + " — Estado: " + j.getEstado()+ " -- Tiempo Jugado: " + String.format(java.util.Locale.US, "%.1f", j.getTiempoJugadoDecimal()) + "h")
                 .forEach(listaColeccion.getItems()::add);
     }
 
@@ -49,10 +47,6 @@ public class GUI extends Application {
         VBox rootBienvenida = new VBox(30);
         rootBienvenida.setAlignment(Pos.CENTER);
         rootBienvenida.setPadding(new Insets(40));
-
-        // GAMESTATS COMO TEXTO EN EL INICIO
-        //Label lblBienvenida = new Label("GameStats");
-        //lblBienvenida.setFont(Font.font("Arial", FontWeight.BOLD, 36));
 
         // GAMESTATS COMO LOGO EN EL INICIO
         ImageView vistaLogo = new ImageView();
@@ -378,6 +372,7 @@ public class GUI extends Application {
 
         // Config ventana STAGE
         primaryStage.setTitle("GameStats");
+        primaryStage.getIcons().add(new javafx.scene.image.Image(getClass().getResourceAsStream("/icono.png")));
         primaryStage.setScene(escenaBienvenida);
         primaryStage.show();
     }

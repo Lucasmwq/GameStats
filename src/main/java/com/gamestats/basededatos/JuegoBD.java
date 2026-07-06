@@ -3,12 +3,10 @@ package com.gamestats.basededatos;
 import com.gamestats.excepciones.ErrorBaseDatosException;
 import com.gamestats.modelo.EstadoJuego;
 import com.gamestats.modelo.Juego;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.ResultSet;
-import java.util.Locale;
 
 public class JuegoBD {
 
@@ -137,9 +135,4 @@ public class JuegoBD {
             throw  new ErrorBaseDatosException("Error al actualizar favoritos", e);
         }
     }
-
-
-
-
-
 }
