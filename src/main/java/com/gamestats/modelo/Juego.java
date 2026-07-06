@@ -6,9 +6,20 @@ public class Juego extends JuegoBase implements Progresable {
     private int tiempoJugadoMinutos;
     private EstadoJuego estado;
 
-    public Juego() {
+    public Juego(int id, String nombre, String imagen, double calificacion) {
         super();
+        setId(id);
+        setName(nombre);
+        setImage(imagen);
+        setRating(calificacion);
         this.estado = EstadoJuego.PENDIENTE; // Por defecto
+    }
+
+    public Juego() {
+
+    }
+
+    private void setImage(String imagen) {
     }
 
     // Implementación de la Clase Abstracta
@@ -42,4 +53,8 @@ public class Juego extends JuegoBase implements Progresable {
 
     public EstadoJuego getEstado() { return estado; }
     public void setEstado(EstadoJuego estado) { this.estado = estado; }
+
+    public void setTiempoJugado(int minutos) {
+        this.tiempoJugadoMinutos = minutos;
+    }
 }
