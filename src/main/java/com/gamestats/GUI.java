@@ -177,7 +177,7 @@ public class GUI extends Application {
         filaEstado.setAlignment(Pos.CENTER);
 
         Label lblEstado = new Label("Estado:");
-        String[] opciones = {"Jugando", "Completado", "Pendiente"};
+        String[] opciones = {"Jugando", "Completado", "Pendiente", "Continuo"};
         ChoiceBox<String> tiposDeEstados = new ChoiceBox<>(FXCollections.observableArrayList(opciones));
         tiposDeEstados.setPrefWidth(130);
 
@@ -189,7 +189,6 @@ public class GUI extends Application {
         btnFiltroFavoritos.setOnAction(e -> {
 
             if (btnFiltroFavoritos.isSelected()) {
-
                 btnFiltroFavoritos.setText("★");
                 btnFiltroFavoritos.setStyle("-fx-font-size: 16px; -fx-cursor: hand; -fx-text-fill: gold");
                 recargarColeccion(listaColeccion, juegoBD, true);
