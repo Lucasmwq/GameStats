@@ -41,7 +41,7 @@ public class Juego extends JuegoBase implements Progresable {
 
     @Override
     public String obtenerResumenProgreso() {
-        return "Estado: " + estado + " | Tiempo: " + String.format(java.util.Locale.US, "%.1f", getTiempoJugadoDecimal()) + "h";
+        return "Estado: " + estado + " \nTiempo: " + String.format(java.util.Locale.US, "%.1f", getTiempoJugadoDecimal()) + "h";
     }
 
     // Getters y Setters

@@ -135,4 +135,20 @@ public class JuegoBD {
             throw  new ErrorBaseDatosException("Error al actualizar favoritos", e);
         }
     }
+    // Metodo paraa actualizar la url de la portada
+    public void actualizarPortada(int id, String nuevaUrl) {
+        String sql = "UPDATE juegos SET portada = ? WHERE id = ?";
+
+        try (Connection conn = ConexionBD.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, nuevaUrl);
+            ps.setInt(2, id);
+            ps.executeUpdate();
+            System.out.println("Portada actualizada correctamente");
+
+        } catch (SQLException e) {
+            throw new ErrorBaseDatosException("Error al actualizar la portada del juego", e);
+        }
+    }
 }

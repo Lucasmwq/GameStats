@@ -23,6 +23,7 @@ import javafx.stage.Stage;
 import java.util.List;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Priority;
 
 public class GUI extends Application {
 
@@ -61,12 +62,11 @@ public class GUI extends Application {
         }
 
         Label lblSubtitulo = new Label("Tu colección de videojuegos personal");
-        lblSubtitulo.setFont(new Font("Arial", 14));
 
         Button btnIngresar = new Button("Ingresar");
 
         rootBienvenida.getChildren().addAll(vistaLogo, lblSubtitulo, btnIngresar);
-        Scene escenaBienvenida = new Scene(rootBienvenida, 650, 400);
+        Scene escenaBienvenida = new Scene(rootBienvenida);
         escenaBienvenida.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
 
         // Pantalla de menú
@@ -75,7 +75,6 @@ public class GUI extends Application {
         rootMenu.setPadding(new Insets(40));
 
         Label lblSeleccion = new Label("¿Qué quieres hacer?");
-        lblSeleccion.setFont(Font.font("Arial", FontWeight.BOLD, 22));
 
         Button btnBuscarJuego = new Button("🔍  Buscar juego");
         btnBuscarJuego.setMinWidth(200);
@@ -84,8 +83,6 @@ public class GUI extends Application {
         btnMiColeccion.setMinWidth(200);
 
         rootMenu.getChildren().addAll(lblSeleccion, btnBuscarJuego, btnMiColeccion);
-        Scene escenaMenu = new Scene(rootMenu, 650, 400);
-        escenaMenu.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
 
         // Pantalla de búsqueda
         VBox rootBusqueda = new VBox(12);
@@ -93,7 +90,6 @@ public class GUI extends Application {
         rootBusqueda.setPadding(new Insets(30));
 
         Label lblBuscar = new Label("Buscar videojuego");
-        lblBuscar.setFont(Font.font("Arial", FontWeight.BOLD, 22));
 
         HBox filaBusqueda = new HBox(10);
         filaBusqueda.setAlignment(Pos.CENTER);
@@ -107,8 +103,8 @@ public class GUI extends Application {
         filaBusqueda.getChildren().addAll(txtBuscar, btnBuscar);
 
         ListView<String> listaJuegos = new ListView<>();
-        listaJuegos.setPrefWidth(550);
-        listaJuegos.setPrefHeight(280);
+        listaJuegos.setMaxWidth(900);
+        VBox.setVgrow(listaJuegos, Priority.ALWAYS);
 
         HBox filaBotonesGuardar = new HBox(10);
         filaBotonesGuardar.setAlignment(Pos.CENTER);
@@ -122,8 +118,6 @@ public class GUI extends Application {
         Label lblMensajeBusqueda = new Label();
 
         rootBusqueda.getChildren().addAll(lblBuscar, filaBusqueda, listaJuegos, filaBotonesGuardar, lblMensajeBusqueda);
-        Scene escenaBusqueda = new Scene(rootBusqueda, 650, 520);
-        escenaBusqueda.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
 
         // Pantalla Mi colección
         VBox rootColeccion = new VBox(12);
@@ -131,7 +125,6 @@ public class GUI extends Application {
         rootColeccion.setPadding(new Insets(30));
 
         Label lblColeccion = new Label("Mi colección");
-        lblColeccion.setFont(Font.font("Arial", FontWeight.BOLD, 22));
 
         // [INTERFAZ V1_4] - CELL FACTORY PARA RENDERIZAR LA ESTRELLA Y TEXTO
 
@@ -139,8 +132,8 @@ public class GUI extends Application {
         btnFiltroFavoritos.setStyle("-fx-font-size: 16px; -fx-cursor: hand;");
 
         ListView<Juego> listaColeccion = new ListView<>();
-        listaColeccion.setPrefWidth(550);
-        listaColeccion.setPrefHeight(250);
+        listaColeccion.setMaxWidth(900);
+        VBox.setVgrow(listaColeccion, Priority.ALWAYS);
 
         listaColeccion.setCellFactory(param -> new ListCell<>() {
             @Override
@@ -161,14 +154,23 @@ public class GUI extends Application {
                         recargarColeccion(listaColeccion, juegoBD, btnFiltroFavoritos.isSelected());
                     });
 
-                    Label lblTexto = new Label(j.obtenerInformacionBasica() + "  ||  " + j.obtenerResumenProgreso());             lblTexto.setFont(new Font("Arial", 14));
-                    lblTexto.setFont(new Font("Arial", 14));
+                    // Logica para mostrar la imagen del juego
+                    ImageView vistaPortada = new ImageView();
+                    vistaPortada.setFitWidth(240);
+                    vistaPortada.setFitHeight(135);
+                    vistaPortada.setPreserveRatio(true);
 
-                    HBox fila = new HBox(lblEstrella, lblTexto);
+                    if (j.getBackground_image() != null && !j.getBackground_image().isEmpty()) {
+                        Image imagen = new Image(j.getBackground_image(), true);
+                        vistaPortada.setImage(imagen);
+                    }
+
+                    Label lblTexto = new Label(j.obtenerInformacionBasica() + "\n" + j.obtenerResumenProgreso());
+                    lblTexto.setPadding(new Insets(0, 0, 0, 20));
+
+                    HBox fila = new HBox(lblEstrella, vistaPortada,lblTexto);
                     fila.setAlignment(Pos.CENTER_LEFT);
                     setGraphic(fila);
-
-
                 }
             }
         });
@@ -182,25 +184,10 @@ public class GUI extends Application {
         tiposDeEstados.setPrefWidth(130);
 
         Button btnGuardarEstado = new Button("Cambiar estado");
-
         Button btnAgregarTiempo = new Button("Agregar tiempo jugado");
+        Button btnCambiarPortada = new Button("Cambiar portada");
 
-        // [INTERFAZ V1_4] BOTON DE FILTRO GLOBAL UTILIZANDO TOGGLE BUTTON
-        btnFiltroFavoritos.setOnAction(e -> {
-
-            if (btnFiltroFavoritos.isSelected()) {
-                btnFiltroFavoritos.setText("★");
-                btnFiltroFavoritos.setStyle("-fx-font-size: 16px; -fx-cursor: hand; -fx-text-fill: gold");
-                recargarColeccion(listaColeccion, juegoBD, true);
-            } else {
-
-                btnFiltroFavoritos.setText("☆");
-                btnFiltroFavoritos.setStyle("-fx-font-size: 16px; -fx-cursor: hand; -fx-text-fill: black");
-                recargarColeccion(listaColeccion, juegoBD, btnFiltroFavoritos.isSelected());
-            }
-        });
-
-        filaEstado.getChildren().addAll(lblEstado, tiposDeEstados, btnGuardarEstado, btnAgregarTiempo, btnFiltroFavoritos);
+        filaEstado.getChildren().addAll(lblEstado, tiposDeEstados, btnGuardarEstado, btnAgregarTiempo, btnCambiarPortada, btnFiltroFavoritos);
 
         HBox filaBotonesColeccion = new HBox(10);
         filaBotonesColeccion.setAlignment(Pos.CENTER);
@@ -214,8 +201,6 @@ public class GUI extends Application {
         Label lblMensajeColeccion = new Label();
 
         rootColeccion.getChildren().addAll(lblColeccion, listaColeccion, filaEstado, filaBotonesColeccion, lblMensajeColeccion);
-        Scene escenaColeccion = new Scene(rootColeccion, 650, 520);
-        escenaColeccion.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
 
         // Lógica de búsqueda
         RawgApi rawgApi = new RawgApi();
@@ -246,6 +231,21 @@ public class GUI extends Application {
             }
         });
 
+        // [INTERFAZ V1_4] BOTON DE FILTRO GLOBAL UTILIZANDO TOGGLE BUTTON
+        btnFiltroFavoritos.setOnAction(e -> {
+
+            if (btnFiltroFavoritos.isSelected()) {
+                btnFiltroFavoritos.setText("★");
+                btnFiltroFavoritos.setStyle("-fx-font-size: 16px; -fx-cursor: hand; -fx-text-fill: gold");
+                recargarColeccion(listaColeccion, juegoBD, true);
+            } else {
+
+                btnFiltroFavoritos.setText("☆");
+                btnFiltroFavoritos.setStyle("-fx-font-size: 16px; -fx-cursor: hand; -fx-text-fill: black");
+                recargarColeccion(listaColeccion, juegoBD, btnFiltroFavoritos.isSelected());
+            }
+        });
+
         // Lógica de guardado
         btnGuardar.setOnAction(e -> {
             int indice = listaJuegos.getSelectionModel().getSelectedIndex();
@@ -272,7 +272,7 @@ public class GUI extends Application {
                 recargarColeccion(listaColeccion, juegoBD, btnFiltroFavoritos.isSelected());
             }
             lblMensajeColeccion.setText("");
-            primaryStage.setScene(escenaColeccion);
+            escenaBienvenida.setRoot(rootColeccion);
         });
 
         btnEliminarJuego.setOnAction(e -> {
@@ -298,10 +298,8 @@ public class GUI extends Application {
             }
         });
 
-
         // [INTERFAZ V1.4] (AGREGAR BOTÓN PARA SUMAR HORAS JUGADAS Y FAVORITOS)
         btnAgregarTiempo.setOnAction(event -> {
-
             Juego juegoSeleccionado = listaColeccion.getSelectionModel().getSelectedItem();
             //OBTIENE EL ÍNDICE NÚMERICO SELEECIONADO EN LA LISTA
             if (juegoSeleccionado!=null) {
@@ -358,20 +356,42 @@ public class GUI extends Application {
             }
         });
 
+        // Lógica del botón para cambiar la portada
+        btnCambiarPortada.setOnAction(event -> {
+            Juego juegoSeleccionado = listaColeccion.getSelectionModel().getSelectedItem();
+
+            if (juegoSeleccionado != null) {
+                TextInputDialog dialogo = new TextInputDialog(juegoSeleccionado.getBackground_image());
+                dialogo.setTitle("Cambiar Portada");
+                dialogo.setHeaderText("Modificar imagen de: " + juegoSeleccionado.getName());
+                dialogo.setContentText("Pega el link directo de la nueva imagen:");
+
+                // Si el usuario presiona "OK", se actualiza la BD y la lista
+                dialogo.showAndWait().ifPresent(nuevaUrl -> {
+                    juegoBD.actualizarPortada(juegoSeleccionado.getId(), nuevaUrl);
+                    recargarColeccion(listaColeccion, juegoBD, btnFiltroFavoritos.isSelected());
+                    lblMensajeColeccion.setText("Portada actualizada");
+                });
+            } else {
+                lblMensajeColeccion.setText("Selecciona un juego primero");
+            }
+        });
+
         // Navegación
-        btnIngresar.setOnAction(e -> primaryStage.setScene(escenaMenu));
+        btnIngresar.setOnAction(e -> escenaBienvenida.setRoot(rootMenu));
         btnBuscarJuego.setOnAction(e -> {
             listaJuegos.getItems().clear();
             txtBuscar.clear();
             lblMensajeBusqueda.setText("");
-            primaryStage.setScene(escenaBusqueda);
+            escenaBienvenida.setRoot(rootBusqueda);
         });
-        btnVolverBusqueda.setOnAction(e -> primaryStage.setScene(escenaMenu));
-        btnVolverColeccion.setOnAction(e -> primaryStage.setScene(escenaMenu));
+        btnVolverBusqueda.setOnAction(e -> escenaBienvenida.setRoot(rootMenu));
+        btnVolverColeccion.setOnAction(e -> escenaBienvenida.setRoot(rootMenu));
 
         // Config ventana STAGE
         primaryStage.setTitle("GameStats");
         primaryStage.getIcons().add(new javafx.scene.image.Image(getClass().getResourceAsStream("/icono.png")));
+        primaryStage.setMaximized(true);
         primaryStage.setScene(escenaBienvenida);
         primaryStage.show();
     }
