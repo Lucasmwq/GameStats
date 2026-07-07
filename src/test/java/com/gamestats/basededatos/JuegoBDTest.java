@@ -18,7 +18,7 @@ public class JuegoBDTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    public void limpiar() {
         // Limpiamos el juego de prueba por si algún test falló a la mitad
         assertDoesNotThrow(() -> db.eliminarJuego(-999));
     }

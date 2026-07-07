@@ -45,7 +45,7 @@ public class GUI extends Application {
         juegoBD.crearTabla();
 
         //Pantalla de bienvenida
-        VBox rootBienvenida = new VBox(30);
+        VBox rootBienvenida = new VBox(40);
         rootBienvenida.setAlignment(Pos.CENTER);
         rootBienvenida.setPadding(new Insets(40));
 
@@ -54,33 +54,40 @@ public class GUI extends Application {
         try {
             Image imagenLogo = new Image(getClass().getResourceAsStream("/logo.png"));
             vistaLogo.setImage(imagenLogo);
-            vistaLogo.setFitWidth(350);
-            vistaLogo.setFitHeight(100);
+            vistaLogo.setFitWidth(700);
             vistaLogo.setPreserveRatio(true);
         } catch (NullPointerException e) {
             System.err.println("Advertencia: No se encontró el archivo logo.png en resources.");
         }
 
         Label lblSubtitulo = new Label("Tu colección de videojuegos personal");
+        // aumentamos el tamaño de la fuente ya que se veia demasiado pequeña
+        lblSubtitulo.setStyle("-fx-font-size: 24px; -fx-text-fill: lightgray;");
 
         Button btnIngresar = new Button("Ingresar");
+        // tambien aumentamos el tamaño del boton
+        btnIngresar.setPrefWidth(350);
+        btnIngresar.setStyle("-fx-padding: 15; -fx-font-size: 22px; -fx-cursor: hand; -fx-font-weight: bold;");
 
         rootBienvenida.getChildren().addAll(vistaLogo, lblSubtitulo, btnIngresar);
         Scene escenaBienvenida = new Scene(rootBienvenida);
         escenaBienvenida.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
 
         // Pantalla de menú
-        VBox rootMenu = new VBox(15);
+        VBox rootMenu = new VBox(30);
         rootMenu.setAlignment(Pos.CENTER);
         rootMenu.setPadding(new Insets(40));
 
         Label lblSeleccion = new Label("¿Qué quieres hacer?");
+        lblSeleccion.setStyle("-fx-font-size: 32px; -fx-font-weight: bold;");
 
         Button btnBuscarJuego = new Button("🔍  Buscar juego");
-        btnBuscarJuego.setMinWidth(200);
+        btnBuscarJuego.setMinWidth(450);
+        btnBuscarJuego.setStyle("-fx-padding: 20; -fx-font-size: 22px; -fx-cursor: hand;");
 
         Button btnMiColeccion = new Button("🎮  Mi colección");
-        btnMiColeccion.setMinWidth(200);
+        btnMiColeccion.setMinWidth(450);
+        btnMiColeccion.setStyle("-fx-padding: 20; -fx-font-size: 22px; -fx-cursor: hand;");
 
         rootMenu.getChildren().addAll(lblSeleccion, btnBuscarJuego, btnMiColeccion);
 
@@ -102,9 +109,38 @@ public class GUI extends Application {
 
         filaBusqueda.getChildren().addAll(txtBuscar, btnBuscar);
 
-        ListView<String> listaJuegos = new ListView<>();
+        ListView<Juego> listaJuegos = new ListView<>();
         listaJuegos.setMaxWidth(900);
         VBox.setVgrow(listaJuegos, Priority.ALWAYS);
+        // cell factory para renderizar las portadas en la pantalla de busqueda
+        listaJuegos.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(Juego j, boolean empty) {
+                super.updateItem(j, empty);
+                if (empty || j == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    ImageView vistaPortada = new ImageView();
+                    vistaPortada.setFitWidth(160); // Tamaño un poco más compacto que la colección
+                    vistaPortada.setFitHeight(90);
+                    vistaPortada.setPreserveRatio(true);
+
+                    if (j.getBackground_image() != null && !j.getBackground_image().isEmpty()) {
+                        Image imagen = new Image(j.getBackground_image(), true);
+                        vistaPortada.setImage(imagen);
+                    }
+
+                    // Solo mostramos la información básica (sin estado ni horas, porque aún no se guarda)
+                    Label lblTexto = new Label(j.obtenerInformacionBasica());
+                    lblTexto.setPadding(new Insets(0, 0, 0, 20));
+
+                    HBox fila = new HBox(vistaPortada, lblTexto);
+                    fila.setAlignment(Pos.CENTER_LEFT);
+                    setGraphic(fila);
+                }
+            }
+        });
 
         HBox filaBotonesGuardar = new HBox(10);
         filaBotonesGuardar.setAlignment(Pos.CENTER);
@@ -214,7 +250,7 @@ public class GUI extends Application {
                     juegos = parser.parsearJuegos(json);
                     listaJuegos.getItems().clear();
                     juegos.stream()
-                            .map(j -> j.obtenerInformacionBasica())
+                            .filter(j -> j.getRating() > 0.0)
                             .forEach(listaJuegos.getItems()::add);
                     lblMensajeBusqueda.setText("");
 
@@ -248,9 +284,8 @@ public class GUI extends Application {
 
         // Lógica de guardado
         btnGuardar.setOnAction(e -> {
-            int indice = listaJuegos.getSelectionModel().getSelectedIndex();
-            if (indice >= 0 && juegos != null) {
-                Juego elegido = juegos.get(indice);
+            Juego elegido = listaJuegos.getSelectionModel().getSelectedItem();
+            if (elegido != null) {
                 try {
                     juegoBD.guardar(elegido, EstadoJuego.PENDIENTE);
                     lblMensajeBusqueda.setText("Guardado: " + elegido.getName());
