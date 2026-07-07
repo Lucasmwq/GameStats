@@ -10,16 +10,13 @@ public class Juego extends JuegoBase implements Progresable {
         super();
         setId(id);
         setName(nombre);
-        setImage(imagen);
+        setBackground_image(imagen);
         setRating(calificacion);
         this.estado = EstadoJuego.PENDIENTE; // Por defecto
     }
 
     public Juego() {
 
-    }
-
-    private void setImage(String imagen) {
     }
 
     // Implementación de la Clase Abstracta
